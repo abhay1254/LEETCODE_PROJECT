@@ -1,4 +1,6 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+require("dotenv").config();
+
 
 const technicalInterview = async(req, res) => {
     try {
@@ -13,7 +15,7 @@ const technicalInterview = async(req, res) => {
             endInterview
         });
 
-        const apiKey = "AIzaSyBNs2mYLV0TVG37-_taa9PJjnC0R3r64VI"; // Your API key
+        const apiKey = process.env.GOOGLE_API_KEY; // Your API key
         
         if (!apiKey) {
             return res.status(500).json({
@@ -164,7 +166,7 @@ Keep responses conversational, encouraging, and educational. Format code example
         }
         
         console.log("✅ Technical Interview response generated");
-        
+        console.log("visible");
         res.status(200).json({
             message: text,
             ...responseData

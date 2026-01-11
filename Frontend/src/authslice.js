@@ -17,7 +17,6 @@ export const registerUser = createAsyncThunk(
   }
 );
 
-
 export const loginUser = createAsyncThunk(
   'auth/login',
   async (credentials, { rejectWithValue }) => {
@@ -101,9 +100,12 @@ const authSlice = createSlice({
         state.user = null;
       })
   
- 
+      // ✅ FIXED: Don't show loading screen for background auth checks
       .addCase(checkAuth.pending, (state) => {
-        state.loading = true;
+        // Only set loading if we don't have user data yet (initial load)
+        if (!state.user) {
+          state.loading = true;
+        }
         state.error = null;
       })
       .addCase(checkAuth.fulfilled, (state, action) => {
@@ -118,7 +120,6 @@ const authSlice = createSlice({
         state.user = null;
       })
   
-      // Logout User Cases
       .addCase(logoutUser.pending, (state) => {
         state.loading = true;
         state.error = null;

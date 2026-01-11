@@ -152,10 +152,17 @@ const usersumbission = async(req, res) => {
         sumbitresult.memory = memory;
         await sumbitresult.save();
 
-        if (!req.result.problemSolved.includes(problemId)) {
-            req.result.problemSolved.push(problemId);
-            await req.result.save();
-        }
+       await sumbitresult.save();
+
+// ✅ Only add to problemSolved if status is 'accepted'
+if (status === 'accepted' && !req.result.problemSolved.includes(problemId)) {
+    req.result.problemSolved.push(problemId);
+    await req.result.save();
+}
+
+       
+       
+       
         
         const accepted = (status == 'accepted');
         

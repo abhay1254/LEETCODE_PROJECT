@@ -1,4 +1,6 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+require("dotenv").config();
+
 
 const hrInterview = async(req, res) => {
     try {
@@ -11,7 +13,7 @@ const hrInterview = async(req, res) => {
             endInterview
         });
 
-        const apiKey = "AIzaSyBNs2mYLV0TVG37-_taa9PJjnC0R3r64VI"; // Use your API key
+        const apiKey = process.env.GOOGLE_API_KEY; // Use your API key
         
         if (!apiKey) {
             return res.status(500).json({

@@ -25,6 +25,51 @@ import TechnicalInterviewPage from "./pages/technicalInterview"
 import InterviewQuestionsPage from "./pages/Interview_Q"
 import LandingPage from './pages/landingpage'
 
+// ✅ CLIPBOARD POLYFILL - Add this before the component
+if (!window.navigator.clipboard) {
+  console.warn('⚠️ Clipboard API not available (likely HTTP instead of HTTPS). Using fallback.');
+  window.navigator.clipboard = {
+    writeText: (text) => {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-999999px';
+      textarea.style.top = '-999999px';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      
+      return new Promise((resolve, reject) => {
+        try {
+          const successful = document.execCommand('copy');
+          document.body.removeChild(textarea);
+          if (successful) {
+            resolve();
+          } else {
+            reject(new Error('Copy command failed'));
+          }
+        } catch (err) {
+          document.body.removeChild(textarea);
+          reject(err);
+        }
+      });
+    },
+    
+    readText: () => {
+      return Promise.reject(new Error('Clipboard read requires HTTPS'));
+    },
+    
+    write: (data) => {
+      // Monaco Editor sometimes calls this
+      return Promise.resolve();
+    },
+    
+    read: () => {
+      return Promise.reject(new Error('Clipboard read requires HTTPS'));
+    }
+  };
+}
+
 function App() {
   const dispatch = useDispatch();
   const { isAuthenticated, user, loading } = useSelector((state) => state.auth);

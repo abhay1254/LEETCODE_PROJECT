@@ -1,4 +1,5 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+require("dotenv").config();
 
 const solveDoubt = async(req, res) => {
     try {
@@ -13,7 +14,7 @@ const solveDoubt = async(req, res) => {
         });
 
         // ✅ FIXED: API key wrapped in quotes
-        const apiKey = "AIzaSyBNs2mYLV0TVG37-_taa9PJjnC0R3r64VI";
+        const apiKey = process.env.GOOGLE_API_KEY;
         
         if (!apiKey) {
             return res.status(500).json({

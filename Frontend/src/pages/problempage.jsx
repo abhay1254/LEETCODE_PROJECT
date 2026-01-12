@@ -1,13 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { checkAuth } from '../authslice';
-// ❌ REMOVE THIS LINE - You're not using it
-// import { useForm } from 'react-hook-form';
 import Editor from '@monaco-editor/react';
 import { useParams } from 'react-router';
 import axiosClient from "../utils/axios";
 import SubmissionHistory from "../components/SumbissionHistory";
-import ChatAi from '../components/chatAI';
+import ChatAi from '../components/ChatAI';
 import Editorial from '../components/Editorial';
 import TopUsersLeaderboard from "./TopUsersLeaderboard";
 import { 
@@ -60,6 +58,7 @@ const ProblemPage = () => {
         console.error('Error fetching problem:', error);
         setLoading(false);
       }
+      console.log('Fetched problem data:', problem)
     };
 
     if (id) {

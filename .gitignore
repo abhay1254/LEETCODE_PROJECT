@@ -1,0 +1,5 @@
+.env
+.env.*
+BACKEND/.env
+BACKEND/**/.env
+Frontend/.env*

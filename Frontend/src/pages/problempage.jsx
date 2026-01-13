@@ -6,7 +6,7 @@ import Editor from '@monaco-editor/react';
 import { useParams } from 'react-router';
 import axiosClient from "../utils/axios";
 import SubmissionHistory from "../components/SumbissionHistory";
-import ChatAi from '../components/chatAI';
+import ChatAi from '../components/ChatAI';
 import Editorial from '../components/Editorial';
 import TopUsersLeaderboard from "./TopUsersLeaderboard";
 import { 

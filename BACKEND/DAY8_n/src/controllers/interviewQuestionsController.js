@@ -24,7 +24,7 @@ const interviewQuestions = async(req, res) => {
         
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-2.0-flash-exp"
+            model: "gemini-2.5-flash"
         });
 
         if (action === 'generate') {

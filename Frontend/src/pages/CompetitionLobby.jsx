@@ -34,7 +34,7 @@ const CompetitionLobby = () => {
     try {
       // Try different possible endpoints
       const response = await axiosClient.get('/problem');
-      console.log('Problems response:', response.data);
+      // console.log('Problems response:', response.data);
       
       // Handle different response structures
       let problemsArray = [];

@@ -24,7 +24,8 @@ const Community = () => {
       setLoading(true);
       const response = await axiosClient.get(`/api/community/posts?page=${page}&limit=10`);
       
-      console.log('Posts Response:', response.data);
+      // console.log('Posts Response:', response.data);
+
       
       if (response.data.success) {
         setPosts(response.data.data);
@@ -40,7 +41,8 @@ const Community = () => {
   const handleCreatePost = async (postData) => {
     try {
       const response = await axiosClient.post('/api/community/posts', postData);
-      console.log('Create Post Response:', response.data);
+      // console.log('Create Post Response:', response.data);
+
       
       if (response.data.success) {
         setPosts([response.data.data, ...posts]);
@@ -55,7 +57,7 @@ const Community = () => {
   const handleLikePost = async (postId) => {
     try {
       const response = await axiosClient.post(`/api/community/posts/${postId}/like`);
-      console.log('Like Response:', response.data);
+      // console.log('Like Response:', response.data);
       
       if (response.data.success) {
         setPosts(posts.map(post => 
@@ -76,7 +78,7 @@ const Community = () => {
     
     try {
       const response = await axiosClient.delete(`/api/community/posts/${postId}`);
-      console.log('Delete Response:', response.data);
+      // console.log('Delete Response:', response.data);
       
       if (response.data.success) {
         setPosts(posts.filter(post => post._id !== postId));

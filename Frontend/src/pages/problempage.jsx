@@ -143,7 +143,7 @@ const ProblemPage = () => {
             dispatch(checkAuth());
           }, 2000);
           
-          console.log("✅ Problem marked as solved and stats will update!");
+          // console.log("✅ Problem marked as solved and stats will update!");
           
         } catch (solveError) {
           console.error('Error marking problem as solved:', solveError);

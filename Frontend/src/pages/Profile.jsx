@@ -21,11 +21,11 @@ const Profile = () => {
     const fetchProfileStats = async () => {
       try {
         const response = await axiosClient.get('/api/profile/stats');
-        console.log('Profile Stats Response:', response.data);
+        // console.log('Profile Stats Response:', response.data);
         
         // Handle different response structures
         const data = response.data.data || response.data;
-        console.log('Processed data:', data);
+        // console.log('Processed data:', data);
         
         setProfileStats(data);
         
@@ -149,15 +149,15 @@ const Profile = () => {
     ? Math.round((totalSolved / totalProblems) * 100) 
     : 0;
 
-  console.log('Calculated Stats:', {
-    totalSolved,
-    easySolved,
-    mediumSolved,
-    hardSolved,
-    totalProblems,
-    progressPercentage,
-    rawSolvedStats: solvedStats
-  });
+  // console.log('Calculated Stats:', {
+    // totalSolved,
+    // easySolved,
+    // mediumSolved,
+    // hardSolved,
+    // totalProblems,
+    // progressPercentage,
+    // rawSolvedStats: solvedStats
+  // });
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">

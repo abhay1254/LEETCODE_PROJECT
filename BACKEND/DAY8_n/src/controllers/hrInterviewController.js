@@ -2,77 +2,72 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 require("dotenv").config();
 
 const hrInterview = async(req, res) => {
-  try {
-    const { messages, interviewStats, endInterview } = req.body;
+    console.log("=== HR INTERVIEW REQUEST STARTED ===");
     
-    console.log("HR Interview request:", {
-      messagesCount: messages?.length,
-      questionsAsked: interviewStats?.questionsAsked,
-      duration: interviewStats?.duration,
-      endInterview
-    });
+    try {
+        const { messages, interviewStats, endInterview } = req.body;
+        
+        console.log("1. Request body received:", {
+            messagesCount: messages?.length,
+            questionsAsked: interviewStats?.questionsAsked,
+            duration: interviewStats?.duration,
+            endInterview,
+            hasMessages: !!messages,
+            hasInterviewStats: !!interviewStats
+        });
 
-    // Validate API key
-    const apiKey = process.env.GOOGLE_API_KEY;
-    if (!apiKey) {
-      console.error("❌ API key not configured");
-      return res.status(500).json({
-        message: "API key not configured",
-        error: "GOOGLE_API_KEY is missing in environment variables"
-      });
-    }
-
-    // Validate messages
-    if (!messages || messages.length === 0) {
-      return res.status(400).json({
-        message: "No messages provided",
-        error: "Messages array is empty"
-      });
-    }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    
-    // Use stable model
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash", // Changed from experimental model
-      generationConfig: {
-        temperature: 0.9,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 2048,
-      }
-    });
-
-    // Build conversation history with better validation
-    const conversationHistory = messages
-      .filter(msg => {
-        const isValid = msg && 
-                       msg.parts && 
-                       Array.isArray(msg.parts) && 
-                       msg.parts[0] && 
-                       msg.parts[0].text &&
-                       msg.parts[0].text.trim().length > 0;
-        if (!isValid) {
-          console.warn("Filtered out invalid message:", msg);
+        // Log first message structure
+        if (messages && messages.length > 0) {
+            console.log("2. First message structure:", JSON.stringify(messages[0], null, 2));
         }
-        return isValid;
-      })
-      .map(msg => `${msg.role === 'user' ? 'Candidate' : 'Interviewer'}: ${msg.parts[0].text}`)
-      .join('\n\n');
 
-    if (!conversationHistory || conversationHistory.trim().length === 0) {
-      console.error("❌ No valid conversation history after filtering");
-      return res.status(400).json({
-        message: "Invalid conversation history",
-        error: "No valid messages found"
-      });
-    }
+        const apiKey = process.env.GOOGLE_API_KEY;
+        console.log("3. API Key check:", {
+            exists: !!apiKey,
+            length: apiKey?.length,
+            starts: apiKey?.substring(0, 10)
+        });
+        
+        if (!apiKey) {
+            console.error("❌ API key missing!");
+            return res.status(500).json({
+                message: "API key not configured",
+                error: "API key is missing" 
+            });
+        }
+        
+        console.log("4. Creating GoogleGenerativeAI instance...");
+        const genAI = new GoogleGenerativeAI(apiKey);
+        
+        console.log("5. Getting model...");
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-2.5-flash"
+        });
+        console.log("6. Model created successfully");
 
-    console.log("Conversation history length:", conversationHistory.length);
+        // Build conversation history
+        console.log("7. Building conversation history...");
+        const conversationHistory = messages
+            .filter(msg => {
+                const valid = msg && msg.parts && msg.parts[0] && msg.parts[0].text;
+                if (!valid) {
+                    console.log("Filtered out invalid message:", msg);
+                }
+                return valid;
+            })
+            .map(msg => `${msg.role === 'user' ? 'Candidate' : 'Interviewer'}: ${msg.parts[0].text}`)
+            .join('\n\n');
 
-    let prompt;
-    if (endInterview) {
-      prompt = `You are an expert HR interviewer providing final feedback after an interview session.
+        console.log("8. Conversation history built:", {
+            length: conversationHistory.length,
+            preview: conversationHistory.substring(0, 100)
+        });
+
+        let prompt;
+
+        if (endInterview) {
+            console.log("9. Building END INTERVIEW prompt...");
+            prompt = `You are an expert HR interviewer providing final feedback after an interview session.
 
 ## INTERVIEW STATISTICS:
 - Total Questions Asked: ${interviewStats.questionsAsked}
@@ -92,8 +87,17 @@ Please provide a comprehensive interview summary with:
 7. **Next Steps**: Actionable advice for improvement
 
 Be encouraging but honest. Provide specific, actionable feedback.`;
-    } else {
-      prompt = `You are an experienced HR interviewer conducting a behavioral interview.
+
+        } else {
+            console.log("9. Building REGULAR INTERVIEW prompt...");
+            prompt = `You are an experienced HR interviewer conducting a behavioral interview.
+
+## YOUR RESPONSIBILITIES:
+1. **Ask Relevant Questions**: Focus on behavioral and situational questions
+2. **Evaluate Responses**: Listen carefully and ask thoughtful follow-ups
+3. **Guide the Candidate**: If answers are vague, ask for specific examples
+4. **Build Rapport**: Be professional but friendly and encouraging
+5. **Use STAR Method**: Encourage candidates to use Situation, Task, Action, Result format
 
 ## INTERVIEW PROGRESS:
 - Questions Asked So Far: ${interviewStats.questionsAsked}
@@ -102,14 +106,7 @@ Be encouraging but honest. Provide specific, actionable feedback.`;
 ## CONVERSATION SO FAR:
 ${conversationHistory}
 
-## YOUR RESPONSIBILITIES:
-1. Ask relevant behavioral/situational questions
-2. Evaluate responses and ask thoughtful follow-ups
-3. Guide candidates to provide specific examples
-4. Be professional but friendly
-5. Encourage STAR method (Situation, Task, Action, Result)
-
-## QUESTION CATEGORIES (rotate through):
+## QUESTION CATEGORIES (rotate through these):
 - Self-introduction and career goals
 - Teamwork and collaboration
 - Conflict resolution
@@ -117,51 +114,52 @@ ${conversationHistory}
 - Problem-solving abilities
 - Adaptability and learning
 - Strengths and weaknesses
-- Time management
-- Handling pressure
-- Cultural fit
+- Time management and prioritization
+- Handling pressure and deadlines
+- Cultural fit and values
 
 ## RESPONSE GUIDELINES:
-- Early interview (< 3 questions): Ask foundational questions
-- Good answer: Acknowledge positively and move to next question
-- Vague answer: Ask "Can you give me a specific example?"
-- Short answer: Ask "Can you elaborate on that?"
-- After 7-8 questions: Start wrapping up
-- Keep responses natural and conversational
-- Use **bold** for emphasis
+1. If this is early in the interview (< 3 questions), ask foundational questions
+2. If candidate gave a good answer, acknowledge it positively and move to next question
+3. If answer was vague, ask a follow-up like "Can you give me a specific example?"
+4. If answer was too short, ask "Can you elaborate on that?"
+5. After 7-8 questions, start wrapping up
+6. Keep your responses conversational and natural
+7. Format important parts in **bold** for emphasis
 
-Provide your next question or follow-up. Be natural and conversational.`;
+Now, based on the conversation, provide your next question or follow-up. Be natural and conversational.`;
+        }
+
+        console.log("10. Prompt created, length:", prompt.length);
+        console.log("11. Calling Gemini API...");
+        
+        const result = await model.generateContent(prompt);
+        
+        console.log("12. Gemini API responded");
+        const response = result.response;
+        const text = response.text();
+        
+        console.log("13. Response text extracted, length:", text.length);
+        console.log("✅ HR Interview response generated successfully");
+        
+        res.status(200).json({
+            message: text
+        });
+
+    } catch(err) {
+        console.error("=== HR INTERVIEW ERROR ===");
+        console.error("Error name:", err.name);
+        console.error("Error message:", err.message);
+        console.error("Error stack:", err.stack);
+        console.error("Full error object:", JSON.stringify(err, Object.getOwnPropertyNames(err), 2));
+        
+        res.status(500).json({
+            message: "Internal server error",
+            error: err.message,
+            errorName: err.name,
+            errorStack: err.stack
+        });
     }
-
-    console.log("Sending prompt to Gemini...");
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const text = response.text();
-
-    if (!text || text.trim().length === 0) {
-      throw new Error("Empty response from Gemini API");
-    }
-
-    console.log("✅ HR Interview response generated successfully");
-    console.log("Response length:", text.length);
-
-    res.status(200).json({ message: text });
-
-  } catch(err) {
-    console.error("❌ HR Interview Error:", err);
-    console.error("Error details:", {
-      name: err.name,
-      message: err.message,
-      stack: err.stack,
-      response: err.response?.data
-    });
-
-    res.status(500).json({
-      message: "Failed to generate interview response",
-      error: err.message,
-      details: err.response?.data || err.toString()
-    });
-  }
-};
+}
 
 module.exports = hrInterview;

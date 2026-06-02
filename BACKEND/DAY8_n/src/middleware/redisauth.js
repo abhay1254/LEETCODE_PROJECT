@@ -25,8 +25,8 @@ const redisauth = async(req, res, next) => {
         }
         
         req.result = result;
-        req.userId = result._id; // ✅ ADD THIS LINE
-        // console.log(`User authenticated: ${result.firstname} (${result._id})`);
+        req.userId = result._id; 
+        
         next();
     }
     catch(err) {

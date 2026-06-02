@@ -1,21 +1,21 @@
 const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
-const sumbitRouter = require("./routes/sumbit");
+const sumbitRouter = require("./src/routes/sumbit");
 require("dotenv").config();
-const main = require("./config/db");
+const main = require("./src/config/db");
 const cookieparser = require("cookie-parser");
-const authrouter = require("./routes/userauth");
-const redisclient = require("./config/redis");
-const problemRouter = require("./routes/problem");
+const authrouter = require("./src/routes/userauth");
+const redisclient = require("./src/config/redis");
+const problemRouter = require("./src/routes/problem");
 const cors = require('cors');
-const videoRouter = require("./routes/videoCreator");
-const profileRouter = require("./routes/profile");
-const community = require("./routes/community");
-const practiceRouter = require("./routes/practise");
-const contestRouter = require("./routes/contest");
-const aiRouter = require("./routes/aiChatting");
-const competitionRouter = require("./routes/competition"); // NEW
+const videoRouter = require("./src/routes/videoCreator");
+const profileRouter = require("./src/routes/profile");
+const community = require("./src/routes/community");
+const practiceRouter = require("./src/routes/practise");
+const contestRouter = require("./src/routes/contest");
+const aiRouter = require("./src/routes/aiChatting");
+const competitionRouter = require("./src/routes/competition"); // NEW
 
 const app = express();
 const server = http.createServer(app);
@@ -47,10 +47,10 @@ app.use("/api/profile", profileRouter);
 app.use("/api/community", community);
 app.use("/api/practice", practiceRouter);
 app.use("/api/contests", contestRouter);
-app.use("/api/competition", competitionRouter); // NEW
+app.use("/api/competition", competitionRouter); 
 
 // Initialize Socket.IO for competition
-require("./utils/competitionSocket")(io);
+require("./src/utils/competitionSocket")(io);
 
 // Make io accessible in controllers if needed
 app.set('io', io);

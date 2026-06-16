@@ -32,10 +32,10 @@ const CompetitionLobby = () => {
     setLoadingProblems(true);
     setError('');
     try {
-      // Try different possible endpoints
-      const response = await axiosClient.get('/problem');
-      // console.log('Problems response:', response.data);
       
+      const response = await axiosClient.get('/problem');
+    
+    
       // Handle different response structures
       let problemsArray = [];
       if (Array.isArray(response.data)) {
